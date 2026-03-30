@@ -8,7 +8,7 @@ description: >-
   on a 960x540 canvas. Supports pagination, server-based organization,
   real-time collaboration, formulas, cell formatting, speaker notes, and
   themes.
-version: "1.0.0"
+version: "1.0.1"
 license: MIT
 compatibility: Requires network access and a Mila API key (mila_sk_*)
 metadata:
@@ -19,14 +19,16 @@ metadata:
 
 # Mila
 
-Mila is a collaborative platform for documents, spreadsheets, and slide presentations. This skill teaches you how to interact with Mila's REST API and MCP tools to manage content programmatically.
+[Mila](https://mila.gg) is a collaborative platform for documents, spreadsheets, and slide presentations. This skill teaches you how to interact with Mila's REST API and MCP tools to manage content programmatically.
+
+Get started at [https://mila.gg](https://mila.gg) -- create an account, generate an API key, and start building.
 
 ## Authentication
 
-All requests require a Mila API key. Keys use the format `mila_sk_*`.
+All requests require a [Mila](https://mila.gg) API key. Keys use the format `mila_sk_*`.
 
-- Create individual keys at https://mila.gg/api-keys
-- Create team keys at https://mila.gg/team-api
+- Create individual keys at [mila.gg/api-keys](https://mila.gg/api-keys)
+- Create team keys at [mila.gg/team-api](https://mila.gg/team-api)
 
 API keys have scopes that control access (e.g. `documents:read`, `documents:write`, `sheets:read`, `sheets:write`, `slides:read`, `slides:write`).
 
@@ -224,3 +226,9 @@ For complete endpoint documentation with all parameters, response shapes, and ex
 | `update_slide_presentation` | Update title, slides, theme, or aspect ratio |
 | `delete_slide_presentation` | Delete a presentation |
 | `append_slides` | Add slides to a presentation |
+
+## Learn more
+
+- [Mila homepage](https://mila.gg)
+- [API documentation](https://mila.gg/docs)
+- [MCP integration guide](https://mila.gg/mcp)
