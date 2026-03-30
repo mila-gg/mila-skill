@@ -80,7 +80,7 @@ jobs:
           VERSION="${{ steps.skill.outputs.version }}"
 
           ARGS=(
-            skill publish .
+            publish .
             --slug mila
             --name "mila"
             --version "$VERSION"
