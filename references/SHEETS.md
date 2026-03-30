@@ -29,7 +29,7 @@ Sheets are workbooks containing one or more tabs. Each tab has its own grid of c
 | `fontSize` | number | `14` |
 | `fontFamily` | string | `"Arial"` |
 | `align` | string | `"left"`, `"center"`, `"right"` |
-| `wrapText` | boolean | `true` |
+| `textWrap` | string | `"overflow"`, `"wrap"`, `"clip"` |
 | `numberFormat` | string | `"general"`, `"number"`, `"currency"`, `"percentage"`, `"date"`, `"time"` |
 | `decimals` | number | `2` |
 | `currencySymbol` | string | `"$"` |
