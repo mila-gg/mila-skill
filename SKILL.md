@@ -8,11 +8,11 @@ description: >-
   on a 960x540 canvas. Supports pagination, server-based organization,
   real-time collaboration, formulas, cell formatting, speaker notes, and
   themes.
+version: "1.0.0"
 license: MIT
 compatibility: Requires network access and a Mila API key (mila_sk_*)
 metadata:
   author: mila
-  version: "1.0.0"
   homepage: https://mila.gg
   tags: documents,spreadsheets,slides,presentations,collaboration,productivity,api,mcp,real-time,workbooks,cells
 ---

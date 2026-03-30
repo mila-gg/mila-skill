@@ -1,0 +1,103 @@
+name: Publish to ClawHub
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "SKILL.md"
+      - "references/**"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview only, do not actually publish"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Extract version from SKILL.md
+        id: skill
+        run: |
+          VERSION=$(grep -m1 '^version:' SKILL.md | sed 's/version:[[:space:]]*//' | tr -d '"' | tr -d "'")
+          if [[ -z "$VERSION" ]]; then
+            echo "::error::No version field found in SKILL.md frontmatter."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Detected version: $VERSION"
+
+      - name: Check if version already exists on ClawHub
+        id: check
+        run: |
+          HTTP_STATUS=$(curl -s -o /tmp/inspect.json -w "%{http_code}" \
+            "https://clawhub.ai/api/v1/skills/mila?version=${{ steps.skill.outputs.version }}")
+
+          if [[ "$HTTP_STATUS" == "200" ]]; then
+            # Check if this specific version exists
+            EXISTING=$(cat /tmp/inspect.json)
+            if echo "$EXISTING" | grep -q '"version"' && echo "$EXISTING" | grep -q '"${{ steps.skill.outputs.version }}"'; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "Version ${{ steps.skill.outputs.version }} already exists on ClawHub. Skipping."
+            else
+              echo "skip=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "Skill not found or new version — will publish."
+          fi
+
+      - name: Write ClawHub config
+        if: steps.check.outputs.skip != 'true'
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          cat > "$RUNNER_TEMP/clawhub-config.json" <<EOF
+          {
+            "registry": "https://clawhub.ai",
+            "token": "$CLAWHUB_TOKEN"
+          }
+          EOF
+          echo "CLAWHUB_CONFIG_PATH=$RUNNER_TEMP/clawhub-config.json" >> "$GITHUB_ENV"
+
+      - name: Publish skill to ClawHub
+        if: steps.check.outputs.skip != 'true'
+        env:
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: |
+          VERSION="${{ steps.skill.outputs.version }}"
+
+          ARGS=(
+            skill publish .
+            --slug mila
+            --name "mila"
+            --version "$VERSION"
+            --tags latest
+            --changelog "Release v${VERSION}"
+            --site https://clawhub.ai
+            --registry https://clawhub.ai
+          )
+
+          if [[ "$DRY_RUN" == "true" ]]; then
+            ARGS+=(--dry-run)
+          fi
+
+          echo "Publishing mila v${VERSION} to ClawHub..."
+          bunx clawhub@latest "${ARGS[@]}"
+
+      - name: Already published
+        if: steps.check.outputs.skip == 'true'
+        run: |
+          echo "::notice::Version ${{ steps.skill.outputs.version }} is already on ClawHub. Bump the version in SKILL.md to publish a new release."
